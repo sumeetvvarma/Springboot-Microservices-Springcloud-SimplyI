@@ -1,0 +1,57 @@
+version: '3.7'
+
+services:
+    sk-test-config-server:
+        image: sumeetvvarma/sk-test-config-server:latest
+        ports:
+            - "8012:8012"
+        networks:
+            - sk-test-network
+
+    sk-test-discovery-server:
+        image: sumeetvvarma/sk-test-discovery-server:latest
+        ports:
+            - "8761:8761"
+        networks:
+            - sk-test-network
+        depends_on:
+            - sk-test-config-server
+
+    sk-test-api-gateway:
+        image: sumeetvvarma/sk-test-api-gateway:latest
+        ports:
+            - "8765:8765"
+        networks:
+            - sk-test-network
+        depends_on:
+            - sk-test-config-server
+            - sk-test-discovery-server
+        environment:
+            EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://sk-test-discovery-server:8761/eureka
+    
+    sk-test-user-service:
+        image: sumeetvvarma/sk-test-user-service:latest
+        ports:
+            - "8000:8000"
+        networks:
+            - sk-test-network
+        depends_on:
+            - sk-test-config-server
+            - sk-test-discovery-server
+        environment:
+            EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://sk-test-discovery-server:8761/eureka
+
+    sk-test-account-service:
+        image: sumeetvvarma/sk-test-account-service:latest
+        ports:
+            - "8100:8100"
+        networks:
+            - sk-test-network
+        depends_on:
+            - sk-test-config-server
+            - sk-test-discovery-server
+        environment:
+            EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://sk-test-discovery-server:8761/eureka
+
+networks:
+    sk-test-network:
